@@ -1,7 +1,7 @@
-name: "Code"
+name: Code
 output_dir: ../docs
 navbar:
-  title: "Code"
+  title: Code
   left:
   - text: Home
     href: index.html
@@ -9,6 +9,10 @@ navbar:
     href: about.html
   - text: License
     href: license.html
+  right:
+  - icon: fa-github
+    text: Source code
+    href: https://github.com/acloudysun12/Code
 output:
   workflowr::wflow_html:
     toc: yes
