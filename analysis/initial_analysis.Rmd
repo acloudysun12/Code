@@ -1,0 +1,70 @@
+---
+title: "initial_analysis"
+author: "Adam Sun"
+date: "2019-10-13"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+```{r}
+rm(list=ls())
+library(penalized)
+library(optparse)
+library(dplyr)
+library(flashr)
+
+source("C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/sn_spMF/readIn.R")
+source("C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/sn_spMF/Update_FL.R")
+
+
+run_nnf = function(X_mtx, W_mtx, num_facs, max_iters = 100, penalty_L = 0.1, penalty_F = 0.1){
+  # Write to table first in order to comply with "readIn" function format
+  write.table(X_mtx, 'C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/X_sim.txt', row.names = FALSE)
+  write.table(W_mtx, 'C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/W_sim.txt', row.names = FALSE)
+
+  # Define hyperparams for test
+  K = num_facs
+  alpha1 = penalty_L
+  lambda1 = penalty_F
+  inputdir='C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/'
+  outputdir = inputdir
+  xfn=paste0(inputdir,'X_sim.txt')
+  wfn=paste0(inputdir,'W_sim.txt')
+  Data = readIn(K, alpha1, lambda1, xfn, wfn) 
+  X = Data[['X']];
+  W = Data[['W']];
+  option = Data[['option']];
+  option[['iter']]  = max_iters;
+  Fn_basename = Data[['Fn_basename']];
+  
+  ## run MF to learn the factors  
+  print(paste0('K=', (K), '; alpha1=', (alpha1),'; lambda1=', (lambda1)));
+  Run_iter = Update_FL(X, W, option);
+  FactorM = Run_iter[[1]]
+  LoadingM = Run_iter[[2]]
+  factor_corr = norm(cor(FactorM), 'F')
+  L_sparsity = Run_iter[[3]]
+  F_sparsity = Run_iter[[4]]
+  print(paste0('Sparsity in Factor matrix =', (F_sparsity),'; Sparsity in L =', (L_sparsity), '; '))
+  print(paste0((Run_iter[[5]]), ' factors remain; ; correlation between factors = ', (factor_corr)));
+  return(list(FactorM = FactorM, LoadingM = LoadingM))
+}
+```
+
+<br>
+
+### Simulate a simple nx1 matrix first for understanding conceptually.
+```{r}
+set.seed(9999)
+
+sparseF_sim = rbinom(n = 100, 1, prob = 0.25)
+F_sim = ifelse(sparseF_sim == 1, 0, rexp(n = 100, rate = 1)) %>% matrix(nrow = 100) # replicate F+ (non-neg)  
+# dim(F_sim)
+sparseL_sim = rbinom(n = 10, 1, prob = 0.25)
+L_sim = ifelse(sparseL_sim == 1, 0, rnorm(n = 10, 0, 1)) %>% matrix(nrow = 10)
+
+```
+
