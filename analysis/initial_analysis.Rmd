@@ -7,21 +7,23 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Introduction
-
+### Functions
 ```{r}
 rm(list=ls())
 library(penalized)
 library(optparse)
 library(dplyr)
 library(flashr)
+library(devtools)
+library(ebnm)
+library(NNLM)
 
 source("C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/sn_spMF/readIn.R")
 source("C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/sn_spMF/Update_FL.R")
 
 
 run_nnf = function(X_mtx, W_mtx, num_facs, max_iters = 100, penalty_L = 0.1, penalty_F = 0.1){
-  # Write to table first in order to comply with "readIn" function format
+  # Write to table first in order to work with "readIn" function format
   write.table(X_mtx, 'C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/X_sim.txt', row.names = FALSE)
   write.table(W_mtx, 'C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/W_sim.txt', row.names = FALSE)
 
@@ -58,13 +60,178 @@ run_nnf = function(X_mtx, W_mtx, num_facs, max_iters = 100, penalty_L = 0.1, pen
 
 ### Simulate a simple nx1 matrix first for understanding conceptually.
 ```{r}
-set.seed(9999)
+set.seed(10000)
 
-sparseF_sim = rbinom(n = 100, 1, prob = 0.25)
-F_sim = ifelse(sparseF_sim == 1, 0, rexp(n = 100, rate = 1)) %>% matrix(nrow = 100) # replicate F+ (non-neg)  
+n_ = 200
+p_ = 10
+noise = 0.5
+
+sparseF_sim = rbinom(n = p_, 1, prob = 0.25) 
+F_sim = ifelse(sparseF_sim == 0, 0, rexp(n = p_, rate = 1)) %>% matrix(nrow = p_) # replicate F+ (non-neg), 1 factor (px1)
 # dim(F_sim)
-sparseL_sim = rbinom(n = 10, 1, prob = 0.25)
-L_sim = ifelse(sparseL_sim == 1, 0, rnorm(n = 10, 0, 1)) %>% matrix(nrow = 10)
+sparseL_sim = rbinom(n = n_, 1, prob = 0.25) #(nx1)
+L_sim = ifelse(sparseL_sim == 0, 0, rnorm(n = n_, 0, 1)) %>% matrix() # (nx1)
+E_sim = rnorm(n = n_*p_, 0, noise) %>% matrix(nrow = n_)
+X_sim = L_sim%*%t(F_sim) + E_sim
+
+W_sim = matrix(1, nrow = n_, ncol = p_)
 
 ```
+
+<br>
+
+### nnf. Figure out how to fix code for 1 factor (instead of 2)
+```{r}
+penal_L = 0.5 # vary this too
+penal_F = 0.5 # vary this too
+t_start = Sys.time()
+nnf_out = run_nnf(X_mtx = X_sim, W_mtx = W_sim, num_facs = 2, max_iters = 20, penalty_L = penal_L, penalty_F = penal_F)
+t_nnf = as.numeric(Sys.time() - t_start)
+X_hat_nnf = nnf_out$LoadingM %*% t(nnf_out$FactorM)
+se_nnf = sum((X_hat_nnf - X_sim)^2)
+se_nnf_real = sum((X_hat_nnf - L_sim%*%t(F_sim))^2)
+
+```
+
+<br>
+
+### Test flash_add_factors_from_data. Confirm pve with EVD (what is soft-thresholded SVD?)
+```{r}
+X_flash = flash_set_data(X_sim)
+names(X_flash)
+f = flash_add_factors_from_data(X_flash, K=10, backfit=FALSE)
+f$pve
+evd = eigen(cov(X_sim))
+evd$values[1]/sum(evd$values)
+
+```
+
+<br>
+
+### Backfit and plot fitted with actual
+```{r}
+X_backfit = flash_backfit(X_flash, f, verbose = FALSE)
+X_backfit$pve
+X_backfit$objective
+round(X_backfit$ldf$f,5) # are numbers equal up to a sign change?
+X_backfit$ldf$l[1:10] # could we have switched sign between l and f?
+
+plot(X_backfit$fitted_values, L_sim%*%t(F_sim), ylab = "Actual", 
+     main="compare fitted values with true LF'")
+
+# Confirm that L%*%D%*%t(F) = fitted_values
+sum(abs(X_backfit$ldf$l %*% X_backfit$ldf$d %*% t(X_backfit$ldf$f) - X_backfit$fitted_values))
+
+se_eb = sum((X_backfit$fitted_values -  L_sim%*%t(F_sim))^2)
+se_eb
+
+```
+
+
+<br>
+
+### Greedy and plot fitted with actual. "ebnm_ash" seems to have lower objective, though very marginal. Why? 
+```{r}
+X_greedy = flash_add_greedy(X_flash, Kmax=10, verbose=FALSE)
+X_greedy$pve
+X_greedy$objective
+round(X_greedy$ldf$f,5) # negative numbers do exist in the factors
+X_greedy$ldf$l[1:10] # note results are flipped from backfit ldf$l
+
+X_greedy_ash = flash_add_greedy(X_flash, Kmax=10, ebnm_fn="ebnm_ash",
+                                verbose=FALSE)
+X_greedy_ash$pve
+X_greedy_ash$objective
+
+se_eb = sum((X_greedy_ash$fitted_values -  L_sim%*%t(F_sim))^2)
+se_eb
+
+round(X_greedy_ash$ldf$f,5) # negative numbers do exist in the factors
+
+
+```
+
+<br>
+
+### non-negative mf proposed by JW, first using greedy <br>
+Note that both F and L are both non-negative <br>
+https://willwerscheid.github.io/FLASHvestigations/nonnegative.html
+```{r}
+udv_nn = function(Y, K = 1) {
+  tmp = NNLM::nnmf(Y, K, verbose = FALSE)
+  return(list(d = rep(1, K), u = tmp$W, v = t(tmp$H)))
+}
+
+# One method to do non-negative mf
+ebnm_fn = "ebnm_ash"
+ebnm_param = list(mixcompdist = "+uniform", warmstart = TRUE)
+
+run_flash_once <- function(f_init) {
+  flash(X_sim, f_init = f_init, 
+        ebnm_fn = ebnm_fn, ebnm_param = ebnm_param,
+        var_type="constant", init_fn = udv_nn, 
+        backfit = TRUE, verbose = FALSE)
+}
+
+fl_g <- run_flash_once(f_init = NULL)
+fl_g <- run_flash_once(f_init = fl_g)
+fl_g <- run_flash_once(f_init = fl_g)
+fl_g$objective
+fl_g$ldf$f
+which(fl_g$ldf$l <= 0)
+
+se_eb = sum((fl_g$fitted_values -  L_sim%*%t(F_sim))^2)
+se_eb
+
+
+```
+
+<br>
+
+### non-negative mf proposed by JW, using backfit. Since true K = 1, these results do worse <br>
+Note again that both F and L are both non-negative <br>
+```{r}
+fl_nnmf <- flash_add_factors_from_data(X_flash, K = 10,
+                                       init_fn = udv_nn, 
+                                       backfit = FALSE)
+
+fl_b <- flash_backfit(X_flash, fl_nnmf,
+                      ebnm_fn = ebnm_fn,
+                      ebnm_param = ebnm_param,
+                      var_type = "constant",
+                      verbose = FALSE)
+
+fl_b$objective
+which(fl_b$ldf$l <= 0)
+
+se_eb = sum((fl_b$fitted_values -  L_sim%*%t(F_sim))^2)
+se_eb
+
+```
+
+<br>
+
+### How to set functions for L and F separately? <br>
+Use ebnm_param to separately set the two distributions
+```{r}
+ebnm_fn = "ebnm_ash"
+ebnm_param2 = list(l=list(), f=list(mixcompdist = "+uniform"), warmstart = TRUE)
+
+fl_nnmf <- flash_add_factors_from_data(X_flash, K = 1,
+                                       init_fn = udv_nn, 
+                                       backfit = FALSE)
+
+fl_b2 <- flash_backfit(X_flash, fl_nnmf,
+                       ebnm_fn = ebnm_fn,
+                       ebnm_param = ebnm_param2,
+                       var_type = "constant",
+                       verbose = FALSE)
+
+fl_b2$objective
+
+se_eb_nnL = sum((fl_b2$fitted_values -  L_sim%*%t(F_sim))^2)
+se_eb_nnL
+
+```
+
 
