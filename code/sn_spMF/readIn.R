@@ -16,10 +16,13 @@ readIn <- function(K, alpha1, lambda1, Xfn, Wfn){
 	
 	# X = read.table(Xfn, sep='\t', header=T);
 	# W = read.table(Wfn, sep='\t', header=T);
-	# Chagned this because needed "space" separation
-	X = read.table(Xfn, sep="", header=T);
-	W = read.table(Wfn, sep="", header=T);
-
+	# Changed this because needed "space" separation
+	# X = read.table(Xfn, sep="", header=T);
+	# W = read.table(Wfn, sep="", header=T);
+	X = Xfn
+	W = Wfn
+	
+	
 	## remove the first two columns of gene names and SNP names
 	#X = X[, seq(3, 51)];
 	#W = W[, seq(3, 51)];
