@@ -8,6 +8,5 @@ editor_options:
   chunk_output_type: console
 ---
 
-Research on nnf and ebmf methods.
-<br>
+
 Use the following linke [link](analysis-analysis.html) to see initial analysis results.
