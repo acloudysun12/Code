@@ -2,7 +2,9 @@
 title: "workflow_test"
 author: "Sun, Adam"
 date: "February 17, 2020"
-output: html_document
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
 ---
 
 
