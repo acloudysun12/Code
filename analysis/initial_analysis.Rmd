@@ -15,7 +15,7 @@ K, the number of factors, is selected outside the matrix factorization algorithm
 
 Sparsity coefficients on loadings matrix (L) and factors matrix (F)--denoted alpha and lambda in paper--are selected after K is selected. 
 
-```{r}
+```{r }
 # Prep Functions
 
 rm(list=ls())
@@ -48,16 +48,16 @@ function(inputdir_data="C:/Users/aclou/Documents/Projects/Thesis/Code/data/",
          option_disp = T){
   
   # Write to table first in order to work with "readIn" function format
-  write.table(X_mtx, paste0(inputdir_data, "X_sim.txt"), row.names = FALSE)
-  write.table(W_mtx, paste0(inputdir_data, "W_sim.txt"), row.names = FALSE)
+  # write.table(X_mtx, paste0(inputdir_data, "X_sim.txt"), row.names = FALSE)
+  # write.table(W_mtx, paste0(inputdir_data, "W_sim.txt"), row.names = FALSE)
 
   # Define hyperparams for test
   K = num_facs
   alpha1 = penalty_L
   lambda1 = penalty_F
-  outputdir = inputdir
-  xfn=paste0(inputdir_data,'X_sim.txt')
-  wfn=paste0(inputdir_data,'W_sim.txt')
+  outputdir = inputdir_data
+  xfn=X_mtx %>% as.data.frame()
+  wfn=W_mtx %>% as.data.frame()
   Data = readIn(K, alpha1, lambda1, xfn, wfn) 
   X = Data[['X']];
   W = Data[['W']];
@@ -76,11 +76,10 @@ function(inputdir_data="C:/Users/aclou/Documents/Projects/Thesis/Code/data/",
   L_sparsity = Run_iter[[3]]
   F_sparsity = Run_iter[[4]]
   print(paste0('Final sparsity in Factor matrix =', (F_sparsity),'; Final sparsity in L =', (L_sparsity), '; '))
-  print(paste0((Run_iter[[5]]), 'final factors remaining; ; correlation between factors = ', (factor_corr)));
+  print(paste0((Run_iter[[5]]), ' final factors remaining; ; correlation between factors = ', (factor_corr)));
 
   return(list(FactorM = FactorM, LoadingM = LoadingM))
 }
-
 
 
 ```
@@ -150,6 +149,7 @@ Ideally, we would choose a vector of factors K and sparsity parameter values for
 
 Note: sparsity parameter on Loadings (alpha1) could cause all elements shrunk to zero. Set max to 1.
 
+
 ```{r echo =  FALSE}
 
 df_nnf_results = data.frame("Run" = numeric(), 
@@ -204,7 +204,7 @@ for(K_iter in 1:length(K_vec)){
   
 }
 
-colnames(df_nnf_results) = c("Run", "K", "F_lambda1", "L_alpha1", 
+colnames(df_nnf_results) = c("Run", "K_start", "K_final", "F_lambda1", "L_alpha1", 
                              "F_sparse_final", "L_sparse_final", "Time", "Error")
 
 ```
@@ -374,10 +374,11 @@ X_opt_nnf = nnf_opt$LoadingM %*% t(nnf_opt$FactorM)
 RRMSE_nnf = sqrt(sum((X_opt_nnf - X_true)^2)/sum(X_true^2))
 
 df_nnf_results = rbind(df_nnf_results, 
-                       c(9999, K_val, penal_F, penal_L, 
+                       c(9999, K_val, ncol(nnf_opt$LoadingM), penal_F, penal_L, 
                          sum(nnf_opt$FactorM == 0)/length(nnf_opt$FactorM),
                          sum(nnf_opt$LoadingM == 0)/length(nnf_opt$LoadingM),
                          time, RRMSE_nnf))
+
 
 ```
 
@@ -691,6 +692,7 @@ hist(all_flash_f_f5[[run_opt_eb]], breaks = 20,
 -   Sparsity on L $\alpha_1$ needs to be bounded by 1 above (anything above 1 and it fails becuase L becomes empty/0 matrix). Why this fails? Does it have to do with penalized? Why very large sparsity on F does not cause run to fail? <br>
 -   How to change prior dists in flash to include distributions with mixed point estimate densities (i.e. dense at 0 dists)? <br>
 -   What if signal not as strong? Try exp(2)? <br>
+-   Change error term to be bigger as well, i.e. as big as signal? Try SD = 2? <br>
 -   What if different sparsities on each factor (column) in F? i.e. some are global factors, others more localized. How would either handle? <br>
 -   Change back to minimizing Frobenius norm of corr matrix. Will it change results much? <br>
 
@@ -736,7 +738,6 @@ se_eb_greedy = sum((X_greedy_ash$fitted_values - L_sim%*%t(F_sim))^2)
 se_eb_greedy
 
 round(X_greedy_ash$ldf$f,5) # negative numbers do exist in the factors
-
 
 ```
 
