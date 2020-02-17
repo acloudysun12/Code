@@ -326,7 +326,7 @@ div.section {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -335,7 +335,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -344,10 +344,10 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-11-04
+<strong>Last updated:</strong> 2020-02-03
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>Code/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -363,12 +363,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -435,10 +435,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomacloudysun12Codetree47a51894ca970a70019aa8e7e85271cf852748b3targetblank47a5189a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/acloudysun12/Code/tree/47a51894ca970a70019aa8e7e85271cf852748b3" target="_blank">47a5189</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomacloudysun12Codetree590c4f17e01603cca6c4bf1fb2282f53463d6ce6targetblank590c4f1a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/acloudysun12/Code/tree/590c4f17e01603cca6c4bf1fb2282f53463d6ce6" target="_blank">590c4f1</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomacloudysun12Codetree47a51894ca970a70019aa8e7e85271cf852748b3targetblank47a5189a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomacloudysun12Codetree590c4f17e01603cca6c4bf1fb2282f53463d6ce6targetblank590c4f1a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -446,7 +446,9 @@ Great! You are using Git for version control. Tracking code development and conn
 <pre><code>
 Ignored files:
     Ignored:    .Rhistory
-    Ignored:    docs/figure/
+
+Unstaged changes:
+    Modified:   analysis/initial_analysis.Rmd
 
 </code></pre>
 <p>
@@ -485,6 +487,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/acloudysun12/Code/590c4f17e01603cca6c4bf1fb2282f53463d6ce6/docs/initial_analysis.html" target="_blank">590c4f1</a>
+</td>
+<td>
+Adam Sun
+</td>
+<td>
+2019-11-04
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -546,6 +565,7 @@ First analysis
 <div id="functions" class="section level3">
 <h3>Functions</h3>
 <pre class="r"><code>rm(list=ls())
+
 library(penalized)</code></pre>
 <pre><code>Warning: package &#39;penalized&#39; was built under R version 3.5.3</code></pre>
 <pre><code>Loading required package: survival</code></pre>
@@ -571,7 +591,7 @@ library(devtools)</code></pre>
 library(NNLM)</code></pre>
 <pre><code>Warning: package &#39;NNLM&#39; was built under R version 3.5.3</code></pre>
 <pre class="r"><code>source(&quot;C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/sn_spMF/readIn.R&quot;)
-source(&quot;C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/sn_spMF/Update_FL.R&quot;)
+source(&quot;C:/Users/aclou/Grad School/2020 Autumn/Thesis/ts_eQTLs-master/ts_eQTLs-master/sn_spMF/Update_FL_AS.R&quot;)
 
 
 run_nnf = function(X_mtx, W_mtx, num_facs, max_iters = 100, penalty_L = 0.1, penalty_F = 0.1){
@@ -596,6 +616,7 @@ run_nnf = function(X_mtx, W_mtx, num_facs, max_iters = 100, penalty_L = 0.1, pen
   
   ## run MF to learn the factors  
   print(paste0(&#39;K=&#39;, (K), &#39;; alpha1=&#39;, (alpha1),&#39;; lambda1=&#39;, (lambda1)));
+
   Run_iter = Update_FL(X, W, option);
   FactorM = Run_iter[[1]]
   LoadingM = Run_iter[[2]]
@@ -605,6 +626,7 @@ run_nnf = function(X_mtx, W_mtx, num_facs, max_iters = 100, penalty_L = 0.1, pen
   print(paste0(&#39;Sparsity in Factor matrix =&#39;, (F_sparsity),&#39;; Sparsity in L =&#39;, (L_sparsity), &#39;; &#39;))
   print(paste0((Run_iter[[5]]), &#39; factors remain; ; correlation between factors = &#39;, (factor_corr)));
   return(list(FactorM = FactorM, LoadingM = LoadingM))
+  
 }</code></pre>
 <p><br></p>
 </div>
@@ -627,124 +649,89 @@ X_sim = L_sim%*%t(F_sim) + E_sim
 W_sim = matrix(1, nrow = n_, ncol = p_)</code></pre>
 <p><br></p>
 </div>
-<div id="nnf.-figure-out-how-to-fix-code-for-1-factor-instead-of-2" class="section level3">
-<h3>nnf. Figure out how to fix code for 1 factor (instead of 2)</h3>
+<div id="nnf.-changed-nnf-code-so-it-can-work-with-1-factor." class="section level3">
+<h3>nnf. Changed nnf code so it can work with 1 factor.</h3>
 <pre class="r"><code>penal_L = 0.5 # vary this too
 penal_F = 0.5 # vary this too
-t_start = Sys.time()
-nnf_out = run_nnf(X_mtx = X_sim, W_mtx = W_sim, num_facs = 2, max_iters = 20, penalty_L = penal_L, penalty_F = penal_F)</code></pre>
-<pre><code>[1] &quot;K=2; alpha1=0.5; lambda1=0.5&quot;
+
+time = Sys.time()
+nnf_out = run_nnf(X_mtx = X_sim, W_mtx = W_sim, num_facs = 1, max_iters = 20, penalty_L = penal_L, penalty_F = penal_F)</code></pre>
+<pre><code>[1] &quot;K=1; alpha1=0.5; lambda1=0.5&quot;
 [1] &quot;Iter1:&quot;
-[1] &quot;Loading Sparsity = 0.325; Factor sparsity = 0.3; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -265.252435078551; for updating L = -87.9698262778441; Total change = -353.222261356395&quot;
-[1] &quot;Factor matrix Frobenius norm change = 5.22419804968402&quot;
+[1] &quot;Loading Sparsity = 0.07; Factor sparsity = 0; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -267.638870746315; for updating L = -94.2066295103055; Total change = -361.84550025662&quot;
+[1] &quot;Factor matrix Frobenius norm change = 5.37810676827127&quot;
 
 [1] &quot;Iter2:&quot;
-[1] &quot;Loading Sparsity = 0.25; Factor sparsity = 0.5; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -12.4314672933001; for updating L = -10.692856991634; Total change = -23.1243242849341&quot;
-[1] &quot;Factor matrix Frobenius norm change = 1.23445502156672&quot;
+[1] &quot;Loading Sparsity = 0.09; Factor sparsity = 0.5; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -7.38112574327994; for updating L = -0.363252705200068; Total change = -7.74437844848001&quot;
+[1] &quot;Factor matrix Frobenius norm change = 0.740054042224221&quot;
 
 [1] &quot;Iter3:&quot;
-[1] &quot;Loading Sparsity = 0.2; Factor sparsity = 0.55; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -6.93008469036636; for updating L = -3.36470966043976; Total change = -10.2947943508061&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.975902045989697&quot;
+[1] &quot;Loading Sparsity = 0.09; Factor sparsity = 0.6; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -0.220873342058383; for updating L = 0.0689934849372094; Total change = -0.151879857121173&quot;
+[1] &quot;Factor matrix Frobenius norm change = 0.124577322416379&quot;
 
 [1] &quot;Iter4:&quot;
-[1] &quot;Loading Sparsity = 0.1875; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -2.30352714131266; for updating L = -0.910182889538305; Total change = -3.21371003085096&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.535673814934557&quot;
+[1] &quot;Loading Sparsity = 0.09; Factor sparsity = 0.6; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -0.222035617418271; for updating L = 0.0678902940697981; Total change = -0.154145323348473&quot;
+[1] &quot;Factor matrix Frobenius norm change = 0.117193822014097&quot;
 
 [1] &quot;Iter5:&quot;
-[1] &quot;Loading Sparsity = 0.17; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -1.34867720045122; for updating L = -0.146881466800721; Total change = -1.49555866725194&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.409692361422062&quot;
+[1] &quot;Loading Sparsity = 0.09; Factor sparsity = 0.6; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -0.212051291469948; for updating L = 0.0672121119953886; Total change = -0.144839179474559&quot;
+[1] &quot;Factor matrix Frobenius norm change = 0.114949757718265&quot;
 
 [1] &quot;Iter6:&quot;
-[1] &quot;Loading Sparsity = 0.1575; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -1.02925174327737; for updating L = -0.0278994463893696; Total change = -1.05715118966674&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.378482050351204&quot;
+[1] &quot;Loading Sparsity = 0.08; Factor sparsity = 0.6; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -0.201446609313734; for updating L = 0.0663493444642427; Total change = -0.135097264849492&quot;
+[1] &quot;Factor matrix Frobenius norm change = 0.112733470795332&quot;
 
 [1] &quot;Iter7:&quot;
-[1] &quot;Loading Sparsity = 0.155; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.903098635561321; for updating L = 0.0146316112514455; Total change = -0.888467024309875&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.376141587286239&quot;
+[1] &quot;Loading Sparsity = 0.08; Factor sparsity = 0.6; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -0.191402042067921; for updating L = 0.0654903454582723; Total change = -0.125911696609649&quot;
+[1] &quot;Factor matrix Frobenius norm change = 0.110523294620522&quot;
 
 [1] &quot;Iter8:&quot;
-[1] &quot;Loading Sparsity = 0.1425; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.821383737850113; for updating L = 0.0426829878739454; Total change = -0.778700749976167&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.380825618823941&quot;
+[1] &quot;Loading Sparsity = 0.08; Factor sparsity = 0.6; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -0.181984818673982; for updating L = 0.0646325085320996; Total change = -0.117352310141882&quot;
+[1] &quot;Factor matrix Frobenius norm change = 0.108320320137775&quot;
 
 [1] &quot;Iter9:&quot;
-[1] &quot;Loading Sparsity = 0.1275; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.751325668544894; for updating L = 0.0521210663756619; Total change = -0.699204602169232&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.385345738569794&quot;
+[1] &quot;Loading Sparsity = 0.075; Factor sparsity = 0.6; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -0.173147873462767; for updating L = 0.0637214200535823; Total change = -0.109426453409185&quot;
+[1] &quot;Factor matrix Frobenius norm change = 0.106125956865675&quot;
 
 [1] &quot;Iter10:&quot;
-[1] &quot;Loading Sparsity = 0.125; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.688902470763026; for updating L = 0.0623575681336206; Total change = -0.626544902629405&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.389620910488885&quot;
+[1] &quot;Loading Sparsity = 0.07; Factor sparsity = 0.6; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -0.164849920014547; for updating L = 0.062696855778313; Total change = -0.102153064236234&quot;
+[1] &quot;Factor matrix Frobenius norm change = 0.103942370401498&quot;
 
 [1] &quot;Iter11:&quot;
-[1] &quot;Loading Sparsity = 0.1175; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.636245738042646; for updating L = 0.0765358885514615; Total change = -0.559709849491185&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.395591643245915&quot;
+[1] &quot;Loading Sparsity = 0.07; Factor sparsity = 0.6; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -0.157056397269798; for updating L = 0.0616857536695079; Total change = -0.0953706436002904&quot;
+[1] &quot;Factor matrix Frobenius norm change = 0.101772598399825&quot;
 
 [1] &quot;Iter12:&quot;
-[1] &quot;Loading Sparsity = 0.115; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.586477577089511; for updating L = 0.0862599889773605; Total change = -0.50021758811215&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.400208723706601&quot;
+[1] &quot;Loading Sparsity = 0.07; Factor sparsity = 0.6; 1 factors remain&quot;
+[1] &quot;Objective change for updating F = -0.149718878427848; for updating L = 0.0606842009149204; Total change = -0.0890346775129274&quot;
+[1] &quot;Factor matrix Frobenius norm change = 0.0996178183351079&quot;
 
-[1] &quot;Iter13:&quot;
-[1] &quot;Loading Sparsity = 0.11; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.542023724772832; for updating L = 0.0879052714971067; Total change = -0.454118453275726&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.405344047760845&quot;
-
-[1] &quot;Iter14:&quot;
-[1] &quot;Loading Sparsity = 0.105; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.505733084393; for updating L = 0.0876304637550334; Total change = -0.418102620637967&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.415090241628946&quot;
-
-[1] &quot;Iter15:&quot;
-[1] &quot;Loading Sparsity = 0.1; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.472294768763788; for updating L = 0.0798200977865804; Total change = -0.392474670977208&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.425980718690983&quot;
-
-[1] &quot;Iter16:&quot;
-[1] &quot;Loading Sparsity = 0.095; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.440175412767019; for updating L = 0.0764268217499762; Total change = -0.363748591017043&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.435999414241687&quot;
-
-[1] &quot;Iter17:&quot;
-[1] &quot;Loading Sparsity = 0.0975; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.408963368960542; for updating L = 0.0737633927029719; Total change = -0.33519997625757&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.444743892594506&quot;
-
-[1] &quot;Iter18:&quot;
-[1] &quot;Loading Sparsity = 0.0875; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.37665697297075; for updating L = 0.0701494630854427; Total change = -0.306507509885307&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.44855060415584&quot;
-
-[1] &quot;Iter19:&quot;
-[1] &quot;Loading Sparsity = 0.09; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.348080154905176; for updating L = 0.0678771569990317; Total change = -0.280202997906144&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.453378989356171&quot;
-
-[1] &quot;Iter20:&quot;
-[1] &quot;Loading Sparsity = 0.085; Factor sparsity = 0.7; 2 factors remain&quot;
-[1] &quot;Objective change for updating F = -0.319339182293277; for updating L = 0.0687386209332317; Total change = -0.250600561360045&quot;
-[1] &quot;Factor matrix Frobenius norm change = 0.454107001812215&quot;
-
-[1] &quot;Reached maximum iteration.&quot;
+[1] &quot;Converged at itertaion 12&quot;
 [1] &quot;Total time used for updating&quot;
-Time difference of 11.77159 secs
-[1] &quot;Sparsity in Factor matrix =0.7; Sparsity in L =0.085; &quot;
-[1] &quot;2 factors remain; ; correlation between factors = 1.41433096565711&quot;</code></pre>
-<pre class="r"><code>t_nnf = as.numeric(Sys.time() - t_start)
+Time difference of 13.67146 secs
+[1] &quot;Sparsity in Factor matrix =0.6; Sparsity in L =0.07; &quot;
+[1] &quot;1 factors remain; ; correlation between factors = 1&quot;</code></pre>
+<pre class="r"><code>time = Sys.time() - time
+
+
 X_hat_nnf = nnf_out$LoadingM %*% t(nnf_out$FactorM)
 se_nnf = sum((X_hat_nnf - X_sim)^2)
 se_nnf_real = sum((X_hat_nnf - L_sim%*%t(F_sim))^2)</code></pre>
 <p><br></p>
 </div>
+<div id="playground" class="section level2">
+<h2>Playground</h2>
 <div id="test-flash_add_factors_from_data.-confirm-pve-with-evd-what-is-soft-thresholded-svd" class="section level3">
 <h3>Test flash_add_factors_from_data. Confirm pve with EVD (what is soft-thresholded SVD?)</h3>
 <pre class="r"><code>X_flash = flash_set_data(X_sim)
@@ -752,8 +739,8 @@ names(X_flash)</code></pre>
 <pre><code>[1] &quot;Yorig&quot;   &quot;S&quot;       &quot;anyNA&quot;   &quot;missing&quot; &quot;Y&quot;      </code></pre>
 <pre class="r"><code>f = flash_add_factors_from_data(X_flash, K=10, backfit=FALSE)
 f$pve</code></pre>
-<pre><code>[1] 0.55210095 0.07017388 0.06068954 0.05942276 0.05807224 0.05586924
-[7] 0.05002497 0.04821315 0.04543326</code></pre>
+<pre><code>[1] 0.55210782 0.07017475 0.06069029 0.05942350 0.05807297 0.05586994
+[7] 0.05002850 0.04822699 0.04540524</code></pre>
 <pre class="r"><code>evd = eigen(cov(X_sim))
 evd$values[1]/sum(evd$values)</code></pre>
 <pre><code>[1] 0.5318948</code></pre>
@@ -763,7 +750,7 @@ evd$values[1]/sum(evd$values)</code></pre>
 <h3>Backfit and plot fitted with actual</h3>
 <pre class="r"><code>X_backfit = flash_backfit(X_flash, f, verbose = FALSE)
 X_backfit$pve</code></pre>
-<pre><code>[1] 0.4740683</code></pre>
+<pre><code>[1] 0.4740573</code></pre>
 <pre class="r"><code>X_backfit$objective</code></pre>
 <pre><code>[1] -1582.015</code></pre>
 <pre class="r"><code>round(X_backfit$ldf$f,5) # are numbers equal up to a sign change?</code></pre>
@@ -774,26 +761,63 @@ X_backfit$pve</code></pre>
  [4,] -0.00154
  [5,]  0.00006
  [6,]  0.00025
- [7,] -0.47390
- [8,] -0.88058
+ [7,] -0.47391
+ [8,] -0.88057
  [9,]  0.00004
 [10,]  0.00022</code></pre>
 <pre class="r"><code>X_backfit$ldf$l[1:10] # could we have switched sign between l and f?</code></pre>
-<pre><code> [1] -0.0151950396  0.0020629635 -0.0177838064  0.0010871407  0.0055334840
- [6]  0.0010606537 -0.0005762363  0.0010435637 -0.0020008940  0.0004631812</code></pre>
+<pre><code> [1] -0.0151838928  0.0020622332 -0.0177659638  0.0010865041  0.0055335304
+ [6]  0.0010602949 -0.0005751886  0.0010437541 -0.0020007537  0.0004631578</code></pre>
 <pre class="r"><code>plot(X_backfit$fitted_values, L_sim%*%t(F_sim), ylab = &quot;Actual&quot;, 
      main=&quot;compare fitted values with true LF&#39;&quot;)</code></pre>
 <p><img src="figure/initial_analysis.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># Confirm that L%*%D%*%t(F) = fitted_values
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/acloudysun12/Code/blob/590c4f17e01603cca6c4bf1fb2282f53463d6ce6/docs/figure/initial_analysis.Rmd/unnamed-chunk-5-1.png" target="_blank">590c4f1</a>
+</td>
+<td>
+Adam Sun
+</td>
+<td>
+2019-11-04
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code># Confirm that L%*%D%*%t(F) == fitted_values
 sum(abs(X_backfit$ldf$l %*% X_backfit$ldf$d %*% t(X_backfit$ldf$f) - X_backfit$fitted_values))</code></pre>
-<pre><code>[1] 2.113357e-14</code></pre>
+<pre><code>[1] 1.002692e-14</code></pre>
 <pre class="r"><code>se_eb = sum((X_backfit$fitted_values -  L_sim%*%t(F_sim))^2)
 se_eb</code></pre>
-<pre><code>[1] 17.80313</code></pre>
+<pre><code>[1] 17.80003</code></pre>
 <p><br></p>
 </div>
-<div id="greedy-and-plot-fitted-with-actual.-ebnm_ash-seems-to-have-lower-objective-though-very-marginal.-why" class="section level3">
-<h3>Greedy and plot fitted with actual. “ebnm_ash” seems to have lower objective, though very marginal. Why?</h3>
+<div id="greedy-and-plot-fitted-with-actual.-ebnm_ash-has-a-lower-objective-though-very-marginal.-why" class="section level3">
+<h3>Greedy and plot fitted with actual. “ebnm_ash” has a lower objective, though very marginal. Why?</h3>
 <pre class="r"><code>X_greedy = flash_add_greedy(X_flash, Kmax=10, verbose=FALSE)
 X_greedy$pve</code></pre>
 <pre><code>[1] 0.4742477</code></pre>
@@ -976,6 +1000,7 @@ loaded via a namespace (and not attached):
 [61] SQUAREM_2017.10-1 assertthat_0.2.1  rmarkdown_1.10   
 [64] iterators_1.0.12  R6_2.4.0          git2r_0.25.2     
 [67] compiler_3.5.1   </code></pre>
+</div>
 </div>
 </div>
 

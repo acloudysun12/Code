@@ -8,6 +8,7 @@ output: html_document
 
 ```{r}
 aaa = 1
+
 ```
 
 Printing `r aaa`.
