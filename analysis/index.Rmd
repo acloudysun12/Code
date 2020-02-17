@@ -8,5 +8,4 @@ editor_options:
   chunk_output_type: console
 ---
 
-
-Use the following linke [link](analysis-analysis.html) to see initial analysis results.
+Home
