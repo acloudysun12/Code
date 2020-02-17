@@ -1,0 +1,14 @@
+---
+title: "workflow_test"
+author: "Sun, Adam"
+date: "February 17, 2020"
+output: html_document
+---
+
+
+```{r}
+aaa = 1
+```
+
+Printing `r aaa`.
+
