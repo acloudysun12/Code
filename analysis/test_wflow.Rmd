@@ -9,6 +9,8 @@ output: html_document
 ```{r}
 aaa = 1
 
+matrix(0, nrow = 5, ncol = 5)
+
 ```
 
 Printing `r aaa`.
