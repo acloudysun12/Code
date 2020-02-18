@@ -186,11 +186,11 @@ for(K_iter in 1:length(K_vec)){
     nnf_out = run_nnf(X_mtx = X_sim, W_mtx = W_sim, num_facs = K_val, 
                       max_iters = 50, # 50 iters max for testing
                       option_disp = F, penalty_L = penal_L, penalty_F = penal_F) 
-    time = difftime(Sys.time(), time, units = "secs")
     # store nnf run results
     factor_mtx_list[[list_idx]] = nnf_out$FactorM
     loading_mtx_list[[list_idx]] = nnf_out$LoadingM
     list_idx = list_idx + 1
+    time = difftime(Sys.time(), time, units = "secs")
     
     K_final = ncol(nnf_out$FactorM)
     X_hat_nnf = nnf_out$LoadingM %*% t(nnf_out$FactorM)
@@ -630,8 +630,6 @@ df_nnf_results_fac5$L_alpha1 = round(df_nnf_results_fac5$L_alpha1, 3)
 df_ebmf_results_f5$Time_Taken = round(df_ebmf_results_f5$Time_Taken, 3)
 df_ebmf_results_f5$Objective = round(df_ebmf_results_f5$Objective, 3)
 df_ebmf_results_f5$RRMSE = round(df_ebmf_results_f5$RRMSE, 3)
-
-
 
 ```
 
