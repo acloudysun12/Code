@@ -1,7 +1,7 @@
 ---
 title: "Initial Analysis"
 author: "Adam Sun"
-date: "2019-10-13"
+date: "2020-02-01"
 output: workflowr::wflow_html
 editor_options:
   chunk_output_type: console
@@ -15,7 +15,9 @@ K, the number of factors, is selected outside the matrix factorization algorithm
 
 Sparsity coefficients on loadings matrix (L) and factors matrix (F)--denoted alpha and lambda in paper--are selected after K is selected. 
 
-```{r }
+NOTE -- not sure how to make website reference not hard-coded. 
+
+```{r echo = FALSE}
 # Prep Functions
 
 rm(list=ls())
@@ -29,8 +31,12 @@ library(devtools)
 library(ebnm)
 library(NNLM)
 
-inputdir = "C:/Users/aclou/Documents/Projects/Thesis/Code/code/sn_spMF/"
+```
 
+
+
+```{r}
+inputdir = "https://raw.githubusercontent.com/acloudysun12/Matrix_Facs/master/code/sn_spMF/"
 source(paste0(inputdir, "compute_obj.R"))
 source(paste0(inputdir, "fit_L.R"))
 source(paste0(inputdir, "fit_F.R"))
@@ -40,22 +46,17 @@ source(paste0(inputdir, "compute_cophenet.R"))
 
 
 run_nnf = 
-function(inputdir_data="C:/Users/aclou/Documents/Projects/Thesis/Code/data/", 
-         X_mtx, W_mtx, num_facs, 
+function(X_mtx, W_mtx, num_facs, 
          max_iters = 100, 
          penalty_L = 0.1, 
          penalty_F = 0.1, 
          option_disp = T){
   
-  # Write to table first in order to work with "readIn" function format
-  # write.table(X_mtx, paste0(inputdir_data, "X_sim.txt"), row.names = FALSE)
-  # write.table(W_mtx, paste0(inputdir_data, "W_sim.txt"), row.names = FALSE)
 
   # Define hyperparams for test
   K = num_facs
   alpha1 = penalty_L
   lambda1 = penalty_F
-  outputdir = inputdir_data
   xfn=X_mtx %>% as.data.frame()
   wfn=W_mtx %>% as.data.frame()
   Data = readIn(K, alpha1, lambda1, xfn, wfn) 
@@ -67,7 +68,7 @@ function(inputdir_data="C:/Users/aclou/Documents/Projects/Thesis/Code/data/",
   Fn_basename = Data[['Fn_basename']];
   
   ## run MF to learn the factors  
-  print(paste0('Initial K=', (K), '; alpha1=', round(alpha1, 3),'; lambda1=', round(lambda1, 3)));
+  # print(paste0('Initial K=', (K), '; alpha1=', round(alpha1, 3),'; lambda1=', round(lambda1, 3)));
 
   Run_iter = Update_FL(X, W, option);
   FactorM = Run_iter[[1]]
@@ -76,13 +77,12 @@ function(inputdir_data="C:/Users/aclou/Documents/Projects/Thesis/Code/data/",
   L_sparsity = Run_iter[[3]]
   F_sparsity = Run_iter[[4]]
   print(paste0('Final sparsity in Factor matrix =', (F_sparsity),'; Final sparsity in L =', (L_sparsity), '; '))
-  print(paste0((Run_iter[[5]]), ' final factors remaining; ; correlation between factors = ', (factor_corr)));
-
+  
   return(list(FactorM = FactorM, LoadingM = LoadingM))
 }
 
-
 ```
+
 
 
 ```{r echo =  FALSE}
@@ -92,7 +92,6 @@ calc_mean_abs_corr = function(M){
   mean_abs_pairwise_corr = sum(abs(pairwise_correls))/choose(n_cols, 2)
   return(mean_abs_pairwise_corr)
 }
-
 
 ```
 
@@ -219,11 +218,9 @@ Reference: https://willwerscheid.github.io/FLASHvestigations/nonnegative.html
 
 We first use the normal flash function to confirm that L takes any values and F takes non-negative values. Next, we run flash_backfit over a range of starting K's from 1 to 5 and choose the final run as the one which maximizes the objective.
 
-```{r }
+```{r warning = FALSE}
 # flash object of simulated X matrix
 X_flash = flash_set_data(X_sim)
-names(X_flash)
-f = flash_add_factors_from_data(X_flash, K=1, backfit=FALSE) # assume K = 1
 
 ebnm_param_l = list(g=ashr::normalmix(1,0,1), fixg=TRUE)
 ebnm_fn = "ebnm_ash"
@@ -318,14 +315,18 @@ df_ebmf_results$RRMSE = round(df_ebmf_results$RRMSE, 3)
 The average accuracy across all sp-snmf runs was `r round(mean(df_nnf_results$Error), 3)`, while ebmf produced the same RRMSE of `r mean(df_ebmf_results$RRMSE)` for all initial starting K's. This is marginally higher than the average sp-snmf RRMSE by `r  round(mean(df_nnf_results$Error), 3) - mean(df_ebmf_results$RRMSE)`.
 
 As mentioned before, sn-spmf chooses the best K by minimizing cophenetic correlation. However, this does not apply for K = 1, so we assume that K = 1 is known for sn-spmf and focus only on runs where final K = 1 to compare against ebmf. In this case, the average RRMSE of sn-spmf runs had an RRMSE of `r round(mean(df_nnf_results$Error[df_nnf_results$K_final == 1]), 3) `, and the highest accuracy ('optimal') run had the lowest RRMSE of `r df_nnf_results$Error[opt_idx]`. 
+<br>
 
 All ebmf runs correctly identified that the true factor matrix had rank K = 1. Meanwhile, note that not all sn-spmf runs correctly identified that K = 1. When initialized with K = 2, 14 out of 15 runs did not correctly identify the true K to be 1. That, however, could be partially because the maximum iteration is set to 50. If we ran to convergence, we may perhaps see better accuracy results (at the expense of longer runs).
+<br>
 
-In terms of time, the ebmf runs outperformed sn-spmf at an individual run level. Each run of sn-spmf took an average time of `r round(mean(df_nnf_results$Time), 3)` seconds. Meanwhile, ebmf runs took an average of `r round(mean(df_ebmf_results$Time_Taken),3)` seconds. Additionally, when the number of factors is misspecified, sn-spmf took considerably longer (`r round(mean(df_nnf_results$Time[df_nnf_results$K == 2]), 3)` seconds when mis-specified versus `r round(mean(df_nnf_results$Time[df_nnf_results$K == 1]), 3)` seconds when not). Meanwhile, for ebmf, for any initial K flash_backfit took relatively more similar amounts of time, ranging from 3 seconds to at most 15 seconds (scales linearly with the initial number of K's for flash_backfit, from 1 to 5).
+In terms of time, the ebmf runs outperformed sn-spmf at an individual run level. Each run of sn-spmf took an average time of `r round(mean(df_nnf_results$Time), 3)` seconds. Meanwhile, ebmf runs took an average of `r round(mean(df_ebmf_results$Time_Taken),3)` seconds. Additionally, when the number of factors is misspecified, sn-spmf took considerably longer (`r round(mean(df_nnf_results$Time[df_nnf_results$K_final == 2]), 3)` seconds when mis-specified versus `r round(mean(df_nnf_results$Time[df_nnf_results$K_final == 1]), 3)` seconds when not). Meanwhile, for ebmf, for any initial K flash_backfit took relatively more similar amounts of time, ranging from 3 seconds to ~15 seconds (scales linearly with the initial number of K's for flash_backfit, from 1 to 5).
+<br>
 
-When looking at final sparsities on L and F, we note that the sparsities on the output matrices L and F from sn-spmf -- `r df_nnf_results$L_sparse_final[opt_idx]` and `r df_nnf_results$F_sparse_final[opt_idx]` -- are not that close to the true values of `r L_sparse_true` and `r F_sparse_true`. Note that the final sparsity estimate on F shows that F is not at all sparse. However, certain estimates may be noise, and observing the histogram of values of F, we see that indeed values smaller than 0.5 could potentially be treated as noise. Ignoring elements of F < 0.1 gives us a sparsity estimate on F of `r sum(factor_mtx_list[[opt_idx]] >=0.5)/length(factor_mtx_list[[opt_idx]])`, which is more similar to the true sparsity on F of `r F_sparse_true`. 
+Looking at final sparsities on L and F, the sparsities on L and F from sn-spmf -- `r df_nnf_results$L_sparse_final[opt_idx]` and `r df_nnf_results$F_sparse_final[opt_idx]` -- are not that close to the true values of `r L_sparse_true` and `r F_sparse_true`. However, certain estimates may be noise, and observing the histogram of values of F below, we see that indeed any values smaller than 0.5 may potentially be treated as noise. Ignoring elements of F < 0.1 gives us a sparsity estimate on F of `r sum(factor_mtx_list[[opt_idx]] >=0.5)/length(factor_mtx_list[[opt_idx]])`, which is more similar to the true sparsity on F of `r F_sparse_true`. 
 
-Under ebmf, the prior distributions on L and F did not include the mix of point estimate densities, so we go with the approach above to estimate sparsity. By observing the histogram of values of F and log-abs-values of L, we use reasonable cutoff values of 0.1 and -4 to get estimated sparsities of `r sum(log(abs(fl_back$ldf$l)) > - 4)/length(fl_back$ldf$l)` and `r sum(abs(fl_back$ldf$f) < 0.1)/length(fl_back$ldf$f)`, respectively, for F and L. If we trust this hacky method of estimating sparsity on L and F, this suggests that flash_backfit and sn-spmf are similar to each other in estimating the sparsity on F. In addition, flash_backfit is fairly accurate in estimating the sparsity of L of `r L_sparse_true`.
+Under ebmf, the prior distributions on L and F did not include the mix of point estimate densities, so we go with the approach above to estimate sparsity. The histogram of values of F and the log-abs_values of L indicate we can use reasonable cutoff values of 0.1 and -4 to get estimated sparsities of `r sum(abs(fl_back$ldf$f) < 0.1)/length(fl_back$ldf$f)` and `r sum(log(abs(fl_back$ldf$l)) > - 4)/length(fl_back$ldf$l)` respectively, for F and L. If we trust this hacky method of estimating sparsity on L and F, this suggests flash_backfit and sn-spmf are similar to each other in estimating the sparsity on F. In addition, flash_backfit is fairly accurate in estimating the sparsity of L of `r L_sparse_true`.
+<br>
 
 Finally, since both sn-spmf and ebmf both produce optimal matrices on F with 1 factor (i.e. K = 1), we do a side-by-side comparison of the two F vectors below with the true factor F used to generate the matrix X. While the orders of magnitude are different, the indices of elements which are larger than other elements in their respective vectors tie out accordingly across the three F's.
 
@@ -367,7 +368,8 @@ penal_L = opt_f_l[2]
 W_sim = matrix(1, nrow = N, ncol = P)
 time = Sys.time()
 nnf_opt = run_nnf(X_mtx = X_sim, W_mtx = W_sim, num_facs = K_val, 
-                  max_iters = 50, penalty_L = penal_L, penalty_F = penal_F)
+                  option_disp = F, max_iters = 50, 
+                  penalty_L = penal_L, penalty_F = penal_F)
 time = Sys.time() - time
 
 X_opt_nnf = nnf_opt$LoadingM %*% t(nnf_opt$FactorM)
@@ -383,7 +385,7 @@ df_nnf_results = rbind(df_nnf_results,
 ```
 
 
-As a thought experiment, I try to see if we can do better on sn-spmf by finding an optimal solution for the starting penalty parameters on L and F by modeling the RRMSE as a quadratic function of the two parameters. (Note I have to bound L above by 1 and F b y 10, because otherwise it seems the sparsity on L and F will get pushed initially to 1 and cause either matrices to be the 0 matrix which sometimes ends the matrix factorization). The optimal sparsity estimates on F and L is the vector $(\lambda_1, \alpha_1)$ = `r opt_f_l`. This is not surprising since the coefficient on the quadratic term F is negative.
+As a thought experiment, I try to do better on sn-spmf by modeling the RRMSE as a quadratic function of the starting on L and F to find optimal solution for them . (Note I have to bound L above by 1 and F by 10, otherwise it seems the sparsity on L and F may get pushed initially to 1 and cause either matrices to be the 0 matrix). The optimal sparsity estimates on F and L is the vector $(\lambda_1, \alpha_1)$ = `r opt_f_l`. This is not surprising since the coefficient on the quadratic term F is negative.
 
 This does not achieve a better accuracy than our best sn-spmf run, resulting in an RRMSE of `r round(df_nnf_results$Error[df_nnf_results$Run == 9999],3)`. The final sparsities on F and L on this run are `r df_nnf_results$F_sparse_final[df_nnf_results$Run == 9999]` and `r df_nnf_results$L_sparse_final[df_nnf_results$Run == 9999]`. 
 
@@ -406,9 +408,7 @@ print(round(coefs_opt, 3))
 
 ### Simulated matrix
 
-For conceptual understanding how both matrix factorizations perform for slightly more complicated matrices, we simulate a 400x10 matrix with the true number of latent factors as 5. 25% sparse on F and 25% on L this time. Again, non-sparse factor values have exp(1/2) distribution (so the signals are positive and also strong enough to be noise). Error matrix has SD = 1/2. L has N(0,1) distribution as above.
-
-Use RRMSE for measurement (as per Wang Stephens paper) for comparison of methods.
+For conceptual understanding how both matrix factorizations perform for slightly more complicated matrices, we simulate a 400x10 matrix with the true number of latent factors as 5, with 25% sparse on F and 25% on L. Again, non-sparse factor values follow exp(1/2) distribution (so the signals are positive and also strong enough to be noise). Error matrix has SD = 1/2. L has N(0,1) distribution as above.
 
 ```{r echo =  FALSE}
 
@@ -450,7 +450,7 @@ print(paste("Dimension of X:", paste0(dim(X_sim_fac5), collapse =  "x")))
 
 ### sn-spMF
 
-We would choose vector of factors K and sparsity parameter values for L and F. We start with K = 3. For this nnf run, we suppose that K is unknown and use cophenetic correlation to determine K and sparsity parameters for L and F. We compute RRMSE from all runs to later compare against EB method.
+For this simulation, we choose a vector of factors K (3, 5, 7) and random initial sparsity parameter values for L and F. We run 8 random starts for each factor. 
 
 ```{r echo =  FALSE}
 
@@ -472,7 +472,7 @@ list_idx = 1
 for(K_iter in 1:length(K_vec)){
   K_val = K_vec[K_iter]
 
-  F_penal_vec = c(runif(7, 0, 5)) # wider range of penalties for F, but maxed out at 5?
+  F_penal_vec = c(runif(8, 0, 5)) # wider range of penalties for F, but maxed out at 5?
   L_penal_vec = runif(length(F_penal_vec), 0, 1) 
   
   for(iter in 1:length(F_penal_vec)){
@@ -483,7 +483,7 @@ for(K_iter in 1:length(K_vec)){
     W_sim = matrix(1, nrow = N, ncol = P)
     time = Sys.time()
     nnf_out = run_nnf(X_mtx = X_sim_fac5, W_mtx = W_sim, num_facs = K_val, 
-                      max_iters = 50, 
+                      max_iters = 50, option_disp = F, 
                       penalty_L = penal_L, penalty_F = penal_F)
     time = difftime(Sys.time(), time, units = "secs")
     # store nnf run results
@@ -509,7 +509,7 @@ colnames(df_nnf_results_fac5) = c("Run", "K_start", "K_final", "F_lambda1", "L_a
 ```
 
 
-Next, we select optimal K based on which K maximizes the cophonet correlation, as per Yuan He's section "Model Selection". Then, we select optimal sparsity values for L and F based on lowest correlation between factors. 
+Next, we select optimal K based on which K maximizes the cophonet correlation of the "consensus"" matrix. Per Yuan He's section "Model Selection", this K shown empirically to produce the stable factor matrices. Next, we select optimal sparsity values for L and F based on lowest correlation between factors. 
 
 We use mean absolute pairwise correlation for selecting optimal sparsity parameters. I decided not to use Frobenius norm of correlation matrix because this would actually benefit small pairwise correlations and penalize larger pairwise correlations relative to using absolute correlation (because of the squaring?).
 
@@ -553,7 +553,7 @@ Next, perform matrix factorization with EBMF. Again, we use non-negative mf prop
 
 This time, however, we use a combination of flash_add_greedy and flash_backfit (instead of just backfit) with starting K's from 1 to 8. We then select the final run based on which run minimized our objective. 
 
-```{r echo =  FALSE}
+```{r echo =  FALSE, warning = FALSE, message = FALSE}
 # flash object of simulated X matrix
 X_flash = flash_set_data(X_sim_fac5)
 
@@ -609,6 +609,7 @@ colnames(df_ebmf_results_f5) = c("K_start", "Time_Taken", "Num_Factors", "Object
 
 run_opt_eb = which(df_ebmf_results_f5$Objective == max(df_ebmf_results_f5$Objective))
 
+print("Example factor loadings output plots from one run")
 plot(fl_back_f5, plot_loadings = TRUE)
 
 ```
@@ -640,10 +641,11 @@ This "optimal" run was chosen as per Yuan He's documentation with regards to cho
 If the sn-spmf found K = 5 instead to be optimal, then the best run would have an RRMSE of `r df_nnf_results_fac5$Error[run_opt_f5]`, with sparsity levels on F and L of `r round(df_nnf_results_fac5$F_sparse_final[run_opt_f5], 3)` and `r round(df_nnf_results_fac5$L_sparse_final[run_opt_f5], 3)`. 
 
 Neither results would have been better than the best ebmf run (highest objective), which had an RRMSE of `r df_ebmf_results_f5$RRMSE[run_opt_eb]`. This is still `r df_nnf_results_fac5$Error[run_opt_f5] - df_ebmf_results_f5$RRMSE[run_opt_eb]` lower than the optimal sn-spmf run based on 5 factors, and half as large as RRMSE of the "optimal" sn-spmf run based on 3 factors (definitely significant). Note: the best ebmf run also has the lowest RRMSE.
+<br>
 
-When measured on time, ebmf clearly outpaced sn-spmf and scales much better for larger matrices. Each run of sn-spmf took an average time of `r round(mean(df_nnf_results_fac5$Time), 3)` seconds, more than 5 times as long despite setting the max number of iterations to be the same between the two simulations. Thus, sn-spmf does not seem to scale linearly. Also, to have enough data to use cophenetic correlation to select optimal K, each choice of initial K was paired with 7 random starts on initial sparsity parameters on L and F. So total time required was `r round(sum(df_nnf_results_fac5$Time)/60, 3)` minutes. 
+When measured by time, ebmf clearly outpaced sn-spmf and scales much better for larger matrices. Each run of sn-spmf took an average time of `r round(mean(df_nnf_results_fac5$Time), 3)` seconds, more than 5 times as long despite setting the max number of iterations to be the same between the two simulations. Thus, sn-spmf does not seem to scale linearly. Also, to have enough data to use cophenetic correlation to select optimal K, each choice of initial K was paired with 8 random starts on initial sparsity parameters on L and F. So total time required was `r round(sum(df_nnf_results_fac5$Time)/60, 3)` minutes. 
 
-Meanwhile, flash_backfit took `r as.numeric(round(sum(df_ebmf_results_f5$Time_Taken)/60, 3))` minutes in total, much faster. Additionally, flash_backfit seems to scale more linearly with matrix size, taking approximately twice as long for 400x10 matrices as 200x10 matrices. 
+Meanwhile, flash_backfit took `r as.numeric(round(sum(df_ebmf_results_f5$Time_Taken)/60, 3))` minutes in total, which is much faster. Additionally, flash_backfit seems to scale more linearly with matrix size, taking approximately twice as long for 400x10 matrices as 200x10 matrices. 
 
 
 ```{r echo =  FALSE}
@@ -670,7 +672,7 @@ print(print(df_ebmf_results_f5[run_opt_eb,]))
 
 <br>
 
-The optimal factor matrices produced by the two methods do not match anymore in the number of factors. However, we can still compare the histograms of their values with each other. Values of F from ebmf  have better sparsity (initial spike in freqeuency of elements near 0). Meanwhile, values of F from sn-spmf don't show this as strongly. 
+In case the optimal number of factors selected by sn-spmf and ebmf do not match anymore, we can still compare the histograms of values of their respective Factor matrices. Histogram of F from ebmf shows better sparsity (initial spike in freqeuency of elements near 0). Histogram of F from sn-spmf doesn't show this trend as strongly. 
 
 ```{r echo =  FALSE}
 
@@ -694,6 +696,7 @@ hist(all_flash_f_f5[[run_opt_eb]], breaks = 20,
 -   Change error term to be bigger as well, i.e. as big as signal? Try SD = 2? <br>
 -   What if different sparsities on each factor (column) in F? i.e. some are global factors, others more localized. How would either handle? <br>
 -   Change back to minimizing Frobenius norm of corr matrix. Will it change results much? <br>
+-   When running ebmf with more factors, sometimes get error message -- "Warning in estimate_mixprop(data, g, prior, optmethod = optmethod, control = control, : Optimization failed to converge... " --> look into WHY <br>
 
 
 <br>
@@ -741,3 +744,4 @@ round(X_greedy_ash$ldf$f,5) # negative numbers do exist in the factors
 ```
 
 <br>
+
