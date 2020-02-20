@@ -129,7 +129,9 @@ summ_df_nnf_results_1 %>%
   mutate(next_Time = lead(avgTime, 1)) %>%
   mutate(next_N = lead(N, 1)) %>%
   mutate(row_mult = round(next_N/N, 3)) %>%
-  mutate(time_mult = round(next_Time/avgTime, 3))
+  mutate(time_mult = round(next_Time/avgTime, 3)) %>%
+  kable() 
+
 
 
 summ_df_ebmf_results_1 %>% 
@@ -137,7 +139,8 @@ summ_df_ebmf_results_1 %>%
   mutate(next_Time = lead(avgTime, 1)) %>%
   mutate(next_N = lead(N, 1)) %>%
   mutate(row_mult = round(next_N/N, 3)) %>%
-  mutate(time_mult = round(next_Time/avgTime, 3))
+  mutate(time_mult = round(next_Time/avgTime, 3)) %>%
+  kable() 
 
 
 summ_df_nnf_results_1 %>% 
