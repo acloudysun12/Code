@@ -1,0 +1,163 @@
+---
+title: "MF Efficiency Analysis"
+author: "Adam Sun"
+date: "2020-02-01"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+### Notes:
+
+For following analyses, we assume true number of factors K is known for sn-spmf. Want to compare sn-spmf and ebmf on time/accuracy as increase matrix size and true factors.
+
+Matrices to be tested, key -- 
+X1 = 200x20, X2 = 500x20, X3 = 1000x20, X4 = 500x100, X5 = 500x200. 
+K = 5, 10, 25
+
+```{r echo = FALSE}
+# Prep Functions
+
+rm(list=ls())
+
+library(knitr)
+library(penalized)
+library(optparse)
+library(tidyverse)
+library(flashr)
+library(devtools)
+library(ebnm)
+library(NNLM)
+
+```
+
+
+```{r echo = FALSE}
+inputdir = "https://raw.githubusercontent.com/acloudysun12/Matrix_Facs/master/code/sn_spMF/"
+source(paste0(inputdir, "compute_obj.R"))
+source(paste0(inputdir, "fit_L.R"))
+source(paste0(inputdir, "fit_F.R"))
+source(paste0(inputdir, "readIn.R"))
+source(paste0(inputdir, "Update_FL_AS.R"))
+source(paste0(inputdir, "compute_cophenet.R"))
+
+
+run_nnf = 
+function(X_mtx, W_mtx, num_facs, 
+         max_iters = 100, 
+         penalty_L = 0.1, 
+         penalty_F = 0.1, 
+         option_disp = T){
+  
+
+  # Define hyperparams for test
+  K = num_facs
+  alpha1 = penalty_L
+  lambda1 = penalty_F
+  xfn=X_mtx %>% as.data.frame()
+  wfn=W_mtx %>% as.data.frame()
+  Data = readIn(K, alpha1, lambda1, xfn, wfn) 
+  X = Data[['X']];
+  W = Data[['W']];
+  option = Data[['option']];
+  option[['iter']]  = max_iters;
+  option[['disp']]  = option_disp
+  Fn_basename = Data[['Fn_basename']];
+  
+  ## run MF to learn the factors  
+  # print(paste0('Initial K=', (K), '; alpha1=', round(alpha1, 3),'; lambda1=', round(lambda1, 3)));
+
+  Run_iter = Update_FL(X, W, option);
+  FactorM = Run_iter[[1]]
+  LoadingM = Run_iter[[2]]
+  factor_corr = norm(cor(FactorM), 'F')
+  L_sparsity = Run_iter[[3]]
+  F_sparsity = Run_iter[[4]]
+  print(paste0('Final sparsity in Factor matrix =', (F_sparsity),'; Final sparsity in L =', (L_sparsity), '; '))
+  
+  return(list(FactorM = FactorM, LoadingM = LoadingM))
+}
+
+calc_mean_abs_corr = function(M){
+  n_cols = ncol(M)
+  pairwise_correls = cor(M) - diag(rep(1, n_cols))
+  mean_abs_pairwise_corr = sum(abs(pairwise_correls))/choose(n_cols, 2)
+  return(mean_abs_pairwise_corr)
+}
+
+```
+  
+### Results
+
+```{r echo =  FALSE}
+
+all_df_nnf_results_1 = 
+  read.csv("C:/Users/aclou/Documents/Projects/Thesis/Code/data/all_df_nnf_results_1.csv", header = T)
+
+df_ebmf_results_all_1 = 
+  read.csv("C:/Users/aclou/Documents/Projects/Thesis/Code/data/df_ebmf_results_all_1.csv", header = T)
+
+```
+
+
+
+```{r}
+
+View(all_df_nnf_results_1)
+all_df_nnf_results_1 = all_df_nnf_results_1 %>%
+  mutate(N = ifelse(Mtx == "X1_K5", 200, ifelse(Mtx == "X3_K5", 1000, 500))) %>%
+  mutate(P = ifelse(Mtx == "X4_K5", 100, ifelse(Mtx == "X5_K5", 200, 20))) %>%
+  mutate(K_real = 5)
+
+summ_df_nnf_results_1 = all_df_nnf_results_1 %>% 
+  dplyr::group_by(Mtx, N, P, K_real) %>% 
+  dplyr::summarize(avgTime = mean(Time), avgError = mean(Error)) %>% as.data.frame()
+
+View(df_ebmf_results_all_1)
+df_ebmf_results_all_1 = df_ebmf_results_all_1 %>%
+  mutate(N = ifelse(Mtx == "X1_K5", 200, ifelse(Mtx == "X3_K5", 1000, 500))) %>%
+  mutate(P = ifelse(Mtx == "X4_K5", 100, ifelse(Mtx == "X5_K5", 200, 20))) %>%
+  mutate(K_real = 5)
+
+summ_df_ebmf_results_1 = df_ebmf_results_all_1 %>% 
+  dplyr::group_by(Mtx, N, P, K_real) %>% 
+  dplyr::summarize(avgTime = mean(Time_Taken), avgError = mean(RRMSE)) %>% as.data.frame()
+
+
+summ_df_nnf_results_1 %>% 
+  filter(P == 20) %>% 
+  mutate(next_Time = lead(avgTime, 1)) %>%
+  mutate(next_N = lead(N, 1)) %>%
+  mutate(row_mult = round(next_N/N, 3)) %>%
+  mutate(time_mult = round(next_Time/avgTime, 3))
+
+
+summ_df_ebmf_results_1 %>% 
+  filter(P == 20) %>% 
+  mutate(next_Time = lead(avgTime, 1)) %>%
+  mutate(next_N = lead(N, 1)) %>%
+  mutate(row_mult = round(next_N/N, 3)) %>%
+  mutate(time_mult = round(next_Time/avgTime, 3))
+
+
+summ_df_nnf_results_1 %>% 
+  filter(P == 20) %>% 
+  ggplot(aes(N, avgTime)) + geom_point() 
+
+summ_df_ebmf_results_1 %>% 
+  filter(P == 20) %>% 
+  ggplot(aes(N, avgTime)) + geom_point() 
+
+
+df_ebmf_results_all_1 = df_ebmf_results_all_1 %>%
+  mutate(N = ifelse(Mtx == "X1_K5", 200, ifelse(Mtx == "X3_K5", 1000, 500))) %>%
+  mutate(P = ifelse(Mtx == "X4_K5", 100, ifelse(Mtx == "X5_K5", 200, 20)))
+
+
+```
+
+
+
+
+
+
